@@ -63,6 +63,9 @@ class UNet(nn.Module):
         self.up3 = UpSample_Block(in_channels=256, out_channels=128)
         self.up4 = UpSample_Block(in_channels=128, out_channels=64)
         
+        self.last = nn.Conv2d(in_channels=64, out_channels=1, kernel_size=1)
+
+
     def forward(self, x):
         c1 = self.conv1(x)                        			# in_channels=3, out_channels=64 
         down1 = self.down(c1)                       		# in_channels=64, out_channels=64
@@ -93,8 +96,10 @@ class UNet(nn.Module):
         u4 = self.up4(c8, output_size=c1.size())            # in_channels=128, out_channels=64 & image dimesions get doubled
         u4_concat = torch.cat([u4, c1], dim=1)              
         c9 = self.conv9(u4_concat)                  
-        
-        return c9
+
+        out = self.last(c9)
+
+        return out
 
 if __name__ == "__main__":
 
